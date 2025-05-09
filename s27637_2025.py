@@ -1,87 +1,106 @@
-# Cel programu:
-# Program generuje losową sekwencję DNA w formacie FASTA, uwzględniając określoną długość sekwencji, ID oraz opis,
-# a także imię użytkownika, które jest wstawiane w losowe miejsce sekwencji bez wpływu na statystyki.
-# Program zapisuje wynik do pliku .fasta i wyświetla statystyki sekwencji DNA.
-
 import random
 
+# Cel programu: Program generuje losową sekwencję DNA w formacie FASTA
+# Kontekst zastosowania: Użyteczny w bioinformatyce, szczególnie w tworzeniu fikcyjnych danych DNA do testowania algorytmów.
+
 # Funkcja do generowania losowej sekwencji DNA
-def generate_dna_sequence(length, name):
-    # Oryginalny zestaw nukleotydów
-    nucleotides = ['A', 'C', 'G', 'T']
-    sequence = ''.join(random.choice(nucleotides) for _ in range(length))
+def generuj_sekwencje(dlugosc):
+    # Możliwe nukleotydy
+    nukleotydy = ['A', 'C', 'G', 'T']
     
-    # Wstawienie imienia użytkownika w losowe miejsce w sekwencji
-    insert_position = random.randint(0, length - 1)
-    modified_sequence = sequence[:insert_position] + name + sequence[insert_position:]
+    # Generowanie losowej sekwencji
+    sekwencja = ''.join(random.choice(nukleotydy) for _ in range(dlugosc))
     
-    # Zwrócenie zmodyfikowanej sekwencji
-    return modified_sequence
+    return sekwencja
 
 # Funkcja do obliczania statystyk sekwencji
-def calculate_stats(sequence, name):
-    # Usunięcie imienia z sekwencji w celu obliczeń
-    sequence_without_name = sequence.replace(name, '')
+def oblicz_statystyki(sekwencja, imie):
+    # Wstawianie imienia w losowe miejsce w sekwencji
+    miejsce = random.randint(0, len(sekwencja))
+    sekwencja_z_imieniem = sekwencja[:miejsce] + imie + sekwencja[miejsce:]
     
-    # Obliczanie procentowej zawartości poszczególnych nukleotydów
-    a_count = sequence_without_name.count('A')
-    c_count = sequence_without_name.count('C')
-    g_count = sequence_without_name.count('G')
-    t_count = sequence_without_name.count('T')
+    # Obliczanie zawartości nukleotydów
+    a_count = sekwencja_z_imieniem.count('A')
+    c_count = sekwencja_z_imieniem.count('C')
+    g_count = sekwencja_z_imieniem.count('G')
+    t_count = sekwencja_z_imieniem.count('T')
     
-    total_nucleotides = len(sequence_without_name)
+    # Obliczanie statystyk procentowych
+    dlugosc_sekwencji = len(sekwencja_z_imieniem)
+    a_percent = (a_count / dlugosc_sekwencji) * 100
+    c_percent = (c_count / dlugosc_sekwencji) * 100
+    g_percent = (g_count / dlugosc_sekwencji) * 100
+    t_percent = (t_count / dlugosc_sekwencji) * 100
     
-    # Obliczanie procentów
-    a_percent = (a_count / total_nucleotides) * 100
-    c_percent = (c_count / total_nucleotides) * 100
-    g_percent = (g_count / total_nucleotides) * 100
-    t_percent = (t_count / total_nucleotides) * 100
-    
-    # Obliczanie stosunku zawartości C+G względem A+T
-    cg_ratio = ((c_count + g_count) / (a_count + t_count)) * 100
-    
-    return a_percent, c_percent, g_percent, t_percent, cg_ratio
-
-# Funkcja zapisująca wynik do pliku FASTA
-def save_to_fasta(file_name, sequence, description):
-    with open(file_name, 'w') as f:
-        # Zapisujemy nagłówek FASTA oraz sekwencję
-        f.write(f">{file_name.split('.')[0]} {description}\n")
-        f.write(sequence + "\n")
-
-# Główna funkcja programu
-def main():
-    # Oczekiwanie na dane wejściowe od użytkownika
-    length = int(input("Podaj długość sekwencji: "))  # Długość sekwencji
-    sequence_id = input("Podaj ID sekwencji: ")  # ID sekwencji
-    description = input("Podaj opis sekwencji: ")  # Opis sekwencji
-    name = input("Podaj imię: ")  # Imię użytkownika
-    
-    # Generowanie losowej sekwencji DNA
-    dna_sequence = generate_dna_sequence(length, name)
-    
-    # Zapisanie sekwencji do pliku FASTA
-    file_name = f"{sequence_id}.fasta"
-    save_to_fasta(file_name, dna_sequence, description)
-    
-    # Obliczanie statystyk sekwencji
-    a_percent, c_percent, g_percent, t_percent, cg_ratio = calculate_stats(dna_sequence, name)
+    # Obliczanie stosunku C+G do A+T
+    cg_percent = (c_count + g_count) / (a_count + t_count) * 100
     
     # Wyświetlanie statystyk
-    print(f"Zapisano sekwencję do pliku {file_name}")
-    print("Statystyki sekwencji:")
+    print(f"Statystyki sekwencji:")
     print(f"A: {a_percent:.1f}%")
     print(f"C: {c_percent:.1f}%")
     print(f"G: {g_percent:.1f}%")
     print(f"T: {t_percent:.1f}%")
-    print(f"%CG: {cg_ratio:.1f}")
+    print(f"%CG: {cg_percent:.1f}")
     
-# Uruchomienie programu
+    # Zwrócenie zmodyfikowanej sekwencji
+    return sekwencja_z_imieniem
+
+# Funkcja zapisująca sekwencję do pliku FASTA
+def zapisz_do_pliku(id_sekwencji, opis, sekwencja):
+    # Zapis do pliku o nazwie ID sekwencji
+    # ORIGINAL: 
+    # with open(f"{id_sekwencji}.fasta", "w") as file:
+    # file.write(f">{id_sekwencji} {opis}\n")
+    # file.write(sekwencja)
+    # MODIFIED (dodanie obsługi błędu)
+
+    try:
+        with open(f"{id_sekwencji}.fasta", "w") as file:
+            file.write(f">{id_sekwencji} {opis}\n")
+            file.write(sekwencja)
+    except IOError as e:
+        print(f"Nie udało się zapisać do pliku: {e}")
+
+# Główna funkcja programu
+def main():
+    # Pobieranie danych wejściowych od użytkownika
+    # ORIGINAL:
+    # dlugosc = int(input("Podaj długość sekwencji: "))
+    # MODIFIED (dodanie walidacji):
+    while True:
+        try:
+            dlugosc = int(input("Podaj długość sekwencji: "))
+            if dlugosc <= 0:
+                raise ValueError("Długość musi być liczbą dodatnią!")
+            break
+        except ValueError as e:
+            print(e)
+
+    # ORIGINAL:
+    # id_sekwencji = input("Podaj ID sekwencji: ")
+    # MODIFIED (dodanie walidacji ID - tylko litery i cyfry):
+    while True:
+        id_sekwencji = input("Podaj ID sekwencji (litery i cyfry): ")
+        if id_sekwencji.isalnum():  # Sprawdzenie, czy ID zawiera tylko litery i cyfry
+            break
+        else:
+            print("ID sekwencji może zawierać tylko litery i cyfry.")
+    
+    opis = input("Podaj opis sekwencji: ")
+    imie = input("Podaj imię: ")
+
+    # Generowanie losowej sekwencji
+    sekwencja = generuj_sekwencje(dlugosc)
+    
+    # Obliczanie statystyk i wstawianie imienia
+    sekwencja_z_imieniem = oblicz_statystyki(sekwencja, imie)
+    
+    # Zapisywanie do pliku
+    zapisz_do_pliku(id_sekwencji, opis, sekwencja_z_imieniem)
+    
+    # Potwierdzenie zapisania do pliku
+    print(f"Sekwencja została zapisana do pliku {id_sekwencji}.fasta")
+
 if __name__ == "__main__":
     main()
-
-# Zmiany wprowadzone względem oryginalnej wersji:
-# - Dodałem funkcję 'calculate_stats', aby oddzielić obliczanie statystyk od głównej funkcji (modularność).
-# - Dodałem możliwość generowania nazwy pliku w funkcji save_to_fasta, aby uwzględniała ID użytkownika.
-# - Dodałem obsługę błędów w przypadku niewłaściwych danych wejściowych, aby użytkownik otrzymał komunikat w przypadku
-#   wprowadzenia nieprawidłowych danych (np. nie liczby dla długości sekwencji).
